@@ -1,1 +1,5 @@
 env
+.eggs
+SpringRank.egg-info
+*.pyc
+dist
