@@ -59,16 +59,16 @@ def csr_SpringRank(A):
     Main routine to calculate SpringRank by solving linear system
     Default parameters are initialized as in the standard SpringRank model
 
-    INPUT:
-        A=network adjacency matrix (can be weighted)
+    Arguments:
+        A: Directed network (np.ndarray, scipy.sparse.csr.csr_matrix)
 
-    OUTPUT:
+    Output:
         rank: N-dim array, indeces represent the nodes' indices used in ordering the matrix A
     """
 
     N = A.shape[0]
-    k_in = A.sum(axis=0)
-    k_out = A.sum(axis=1).transpose()
+    k_in = np.array(A.sum(axis=0))
+    k_out = np.array(A.sum(axis=1).transpose())
 
     # form the graph laplacian
     operator = csr_matrix(
@@ -91,7 +91,7 @@ def csr_SpringRank(A):
         solution_vector
     )[0]
 
-    return ranks
+    return ranks[:-1]
 
 
 def SpringRank(A, alpha=0):
@@ -101,7 +101,7 @@ def SpringRank(A, alpha=0):
     Otherwise, performs L2 regularization to make full rank.
 
     Arguments:
-        A: Directed network (np.ndarray)
+        A: Directed network (np.ndarray, scipy.sparse.csr.csr_matrix)
         alpha: regularization term. Defaults to 0.
 
     Output:
@@ -110,7 +110,6 @@ def SpringRank(A, alpha=0):
 
     if alpha == 0:
         rank = csr_SpringRank(A)
-        rank = rank[:-1]
     else:
         N = A.shape[0]
         k_in = np.sum(A, 0)
