@@ -9,7 +9,8 @@ if __name__ == '__main__':
 
     ranks = SpringRank.get_ranks(A)
     inverse_temperature = SpringRank.get_inverse_temperature(A, ranks)
-    scaled_ranks = SpringRank.scale_ranks(ranks, inverse_temperature)
+    scaling_factor = 1 / (np.log(0.75 / (1 - 0.75)) / (2 * inverse_temperature))
+    scaled_ranks = SpringRank.scale_ranks(ranks, scaling_factor)
 
     print("Dense operations:")
     print(scaled_ranks)
@@ -19,7 +20,8 @@ if __name__ == '__main__':
 
     sp_ranks = SpringRank.get_ranks(A_csr)
     sp_inverse_temperature = SpringRank.get_inverse_temperature(A_csr.toarray(), sp_ranks)
-    sp_scaled_ranks = SpringRank.scale_ranks(sp_ranks, sp_inverse_temperature)
+    scaling_factor = 1 / (np.log(0.75 / (1 - 0.75)) / (2 * inverse_temperature))
+    sp_scaled_ranks = SpringRank.scale_ranks(ranks, scaling_factor)
 
     print("Sparse operations:")
     print(sp_scaled_ranks)

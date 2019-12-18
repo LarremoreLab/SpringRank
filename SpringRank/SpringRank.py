@@ -9,12 +9,12 @@ from scipy.sparse import SparseEfficiencyWarning
 warnings.simplefilter('ignore', SparseEfficiencyWarning)
 
 
-def get_scaled_ranks(A, odds=0.75):
+def get_scaled_ranks(A, scale=0.75):
     """
     params:
     - A: a (square) np.ndarray
-    - odds: float, greater than 0 less than 1; odds that a node x with rank R_x
-      will beat nodes with rank R_x - 1
+    - scale: float, greater than 0 less than 1; scale is the probability 
+        that a node x with rank R_x will beat nodes with rank R_x - 1
 
     returns:
     - ranks, np.array
@@ -23,8 +23,9 @@ def get_scaled_ranks(A, odds=0.75):
     - support passing in other formats (eg a sparse matrix)
     """
     ranks = get_ranks(A)
-    inverse_temperature = get_inverse_temperature(A, ranks, odds)
-    scaled_ranks = ranks * inverse_temperature
+    inverse_temperature = get_inverse_temperature(A, ranks)
+    scaling_factor = 1 / (np.log(scale / (1 - scale)) / (2 * inverse_temperature))
+    scaled_ranks = scale_ranks(ranks,scaling_factor)
     return scaled_ranks
 
 
@@ -42,16 +43,15 @@ def get_ranks(A):
     return SpringRank(A)
 
 
-def get_inverse_temperature(A, ranks, odds=0.75):
+def get_inverse_temperature(A, ranks):
     """given an adjacency matrix and the ranks for that matrix, calculates the
     temperature of those ranks"""
     betahat = brentq(eqs39, 0.01, 20, args=(ranks, A))
-    temperature = 1 / (np.log(odds / (1 - odds)) / (2 * betahat))
-    return temperature
+    return betahat
 
 
-def scale_ranks(ranks, inverse_temperature):
-    return ranks * inverse_temperature
+def scale_ranks(ranks, scaling_factor):
+    return ranks * scaling_factor
 
 
 def csr_SpringRank(A):
