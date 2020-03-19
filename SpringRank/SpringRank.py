@@ -117,8 +117,7 @@ def SpringRank(A, alpha=0):
 
         C = A + A.T
         D1 = np.diag(k_out + k_in)
-        d2 = k_out - k_in
-        B = alpha + d2
+        B = k_out - k_in
         A = alpha * np.eye(N) + D1 - C
         A = scipy.sparse.csr_matrix(np.matrix(A))
         rank = scipy.sparse.linalg.bicgstab(A, B)[0]
