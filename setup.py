@@ -21,7 +21,7 @@ def read_requirements(filename):
 setup(
     name="SpringRank",
     packages=list(find_packages('.')),
-    version="0.0.5",
+    version="0.0.6",
     author="Caterina De Bacco; Daniel Larremore; Cris Moore",
     author_email="hunter.wapman@gmail.com",
     description="SpringRank: A physical model for efficient ranking in networks",
