@@ -111,15 +111,21 @@ def SpringRank(A, alpha=0):
     if alpha == 0:
         rank = csr_SpringRank(A)
     else:
+        if type(A) == np.ndarray:
+            A = scipy.sparse.csr_matrix(A)
         N = A.shape[0]
-        k_in = np.sum(A, 0)
-        k_out = np.sum(A, 1)
+        k_in = scipy.sparse.csr_matrix.sum(A, 0)
+        k_out = scipy.sparse.csr_matrix.sum(A, 1).T
+
+        k_in = scipy.sparse.diags(np.array(k_in)[0], 0, [N, N], format="csr")
+        k_out = scipy.sparse.diags(np.array(k_out)[0], 0, [N, N], format="csr")
 
         C = A + A.T
-        D1 = np.diag(k_out + k_in)
+        D1 = k_in + k_out
         B = k_out - k_in
-        A = alpha * np.eye(N) + D1 - C
-        A = scipy.sparse.csr_matrix(np.matrix(A))
+        B = B @ np.ones([N, 1])
+
+        A = alpha * scipy.sparse.eye(N) + D1 - C
         rank = scipy.sparse.linalg.bicgstab(A, B)[0]
 
     return np.transpose(rank)
