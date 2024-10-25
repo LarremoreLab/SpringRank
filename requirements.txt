@@ -1,4 +1,2 @@
-llvmlite
-numba
 numpy
 scipy

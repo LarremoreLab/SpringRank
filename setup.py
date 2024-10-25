@@ -21,15 +21,15 @@ def read_requirements(filename):
 setup(
     name="SpringRank",
     packages=list(find_packages('.')),
-    version="0.0.7",
+    version="0.0.8",
     author="Caterina De Bacco; Daniel Larremore; Cris Moore",
-    author_email="hunter.wapman@gmail.com",
+    author_email="daniel.larremore@colorado.edu",
     description="SpringRank: A physical model for efficient ranking in networks",
     long_description="SpringRank: A physical model for efficient ranking in networks",
     long_description_content_type="text/markdown",
     setup_requires=read_requirements('requirements.txt'),
     install_requires=read_requirements('requirements.txt'),
-    url="https://advances.sciencemag.org/content/4/7/eaar8260",
+    url="https://github.com/LarremoreLab/SpringRank",
     include_package_data=True,
     keywords='rankings, SpringRank',
     classifiers=[
@@ -38,4 +38,5 @@ setup(
         "Operating System :: OS Independent",
         'Natural Language :: English'
     ],
+    python_requires=">=3.6",
 )

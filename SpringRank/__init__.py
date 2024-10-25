@@ -1,6 +1,6 @@
-name = "SpringRank"
+from .springrank import SpringRank
 
-__version__ = '0.0.7'
-__authors__ = 'Caterina De Bacco; Daniel Larremore; Cris Moore'
+__version__ = '0.0.8'
+__authors__ = 'Daniel Larremore'
 
-from .SpringRank import get_ranks, get_inverse_temperature, scale_ranks, get_scaled_ranks
+
