@@ -3,3 +3,4 @@ env
 SpringRank.egg-info
 *.pyc
 dist
+**/.DS_Store
