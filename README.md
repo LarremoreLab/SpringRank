@@ -54,6 +54,6 @@ A = np.random.binomial(1, 0.3, size=(10, 10))
 # Initialize and fit model
 model = SpringRank()
 model.fit(A)
-print("The probability that an undirected edge beween 3 and 5 points from 3 to 5 is:\n")
+print("The probability that an undirected edge between 3 and 5 points from 3 to 5 is:\n")
 print(model.predict([3,5]))
 ```
