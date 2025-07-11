@@ -40,6 +40,9 @@ print(model.ranks)
 ```
 print(model.get_beta())
 ```
+Note: the value of beta depends on which accuracy metric you want to optimize for, specified by the `inverse_temp_type`parameter. 
+This can be `"global"` for the global accuracy (conditional log likelihood) of Eq. 13 or `"local"` for 
+the local accuracy (mean absolute edge prediction error) of Eq. 12.
 
 **Get the scaled ranks so that a one-rank difference means a 75% win rate**
 ```
