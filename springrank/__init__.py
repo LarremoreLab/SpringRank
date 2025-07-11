@@ -1,6 +1,4 @@
 from .springrank import SpringRank
 
-__version__ = '0.0.8'
-__authors__ = 'Daniel Larremore'
-
-
+__version__ = "0.0.9"
+__authors__ = "Ben Aoki-Sherwood and Daniel Larremore"
