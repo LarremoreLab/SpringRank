@@ -8,9 +8,20 @@ This is a sparse `numpy` and `scipy` implementation of SpringRank.
 
 # Installation
 
+To develop your own local version of this code, install in editable mode by running the following from the root directory of this repository:
 ```
-pip install -r requirements.txt
+pip install -e .
 ```
+
+To use this code as-is, either clone this repository and install the package locally:
+```
+pip install .
+```
+
+Alternatively, to install SpringRank directly from PyPI, run:
+```
+pip install springrank
+``` 
 
 # Examples
 
