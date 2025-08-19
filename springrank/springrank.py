@@ -8,7 +8,6 @@ from scipy.sparse import SparseEfficiencyWarning
 
 warnings.simplefilter("ignore", SparseEfficiencyWarning)
 
-
 class SpringRank:
     """
     A class implementation of the SpringRank algorithm for computing hierarchical rankings
@@ -29,6 +28,9 @@ class SpringRank:
     inverse_temp_fit_warning : bool, default=True
         Whether to issue a warning when the inverse temperature parameter fitting does not converge.
         If fitting by either root-finding Eq. S39 or minimizing Eq. 12 fails, a warning will be issued and the inverse temperature parameter will default to 20.
+    max_beta : float, default=20
+        Maximum value for the inverse temperature parameter. 
+        If the optimal beta exceeds this value or if the model is fit to a perfect hierarchy, beta will be capped at this value.
 
     Attributes
     ----------
@@ -45,6 +47,7 @@ class SpringRank:
         atol=None,
         inverse_temp_type="global",
         inverse_temp_fit_warning=True,
+        max_beta=20
     ):
         assert inverse_temp_type in [
             "global",
@@ -58,6 +61,7 @@ class SpringRank:
         self.is_fitted_beta_ = False
         self.inverse_temp_type = inverse_temp_type
         self.warn_beta = inverse_temp_fit_warning
+        self.max_beta = max_beta
         self.A = None
         self.rtol = 1e-05 if rtol is None else rtol
         self.atol = 0.0 if atol is None else atol
@@ -156,8 +160,9 @@ class SpringRank:
 
     @staticmethod
     def _eqs39(beta, s, A):
-        """Helper function for inverse temperature calculation
-        Memory-efficient version of eqs39 that works with sparse matrices.
+        """
+        Helper function for global inverse temperature optimization.
+        Memory-efficient version of Eq S39 that works with sparse matrices.
         Instead of converting to dense matrix, we iterate over nonzero elements.
         """
         x = 0
@@ -174,8 +179,9 @@ class SpringRank:
     @staticmethod
     def _eq12_ish(beta, s, A):
         """
-        In the paper, Eq 12 is the 'local' accuracy sigma_a, which we wish to max
-        Equally, we can minimize 2M*(1-sigma_a), which is what this _eq12_ish equation is
+        Helper function for local inverse temperature optimization. 
+        In the paper, we optimize beta_a to be the value that maximizes sigma_a in Eq 12.
+        Equivalently, we can minimize 2M*(1-sigma_a), which is what this _eq12_ish equation is.
         """
         x = 0
         rows, cols = A.nonzero()
@@ -188,7 +194,23 @@ class SpringRank:
         return x
 
     def _get_inverse_temperature(self):
-        if self.inverse_temp_type == "global":
+        """
+        Calculates the temperature parameter used for prediction and rank rescaling.
+        If self.inverse_temp_type = "global", computes the global inverse temperature parameter beta_L that maximizes the conditional log-likelihood sigma_L (Eq. 13).
+        If self.inverse_temp_type = "local", computes the local inverse temperature parameter beta_a that maximizes the local accuracy sigma_a (Eq. 12).
+
+        If the adjacency matrix is perfectly hierarchical (i.e., all edges point upward), the optimal beta is infinite, so calling this function will result in a warning and a beta value equal to the self.max_beta instance variable.
+        Also, even in cases where the hierarchy is not perfect but is very rigid, the model may overfit, leading to a very large optimal beta value.
+        If the optimal beta exceeds self.max_beta, it will be capped at self.max_beta, and a warning will be issued.
+        """
+
+        if self._get_proportion_upward_edges() == 0.0:
+            if self.warn_beta:
+                print(
+                    f"Warning: adjacency matrix is perfectly hierarchical, so the optimal beta is infinite. Capping beta at {self.max_beta}."
+                )
+            return self.max_beta
+        elif self.inverse_temp_type == "global":
             return self._get_inverse_temperature_global()
         elif self.inverse_temp_type == "local":
             return self._get_inverse_temperature_local()
@@ -200,14 +222,17 @@ class SpringRank:
         Root-finding is performed using Brent's method (brentq) over the interval [0.01, 20]. If root-finding fails, beta_L defaults to 20.
         """
         try:
-            MLE = brentq(self._eqs39, 0.01, 20, args=(self.ranks, self.A))
-            return MLE
-        except ValueError as e:
-            if self.warn_beta:
-                warnings.warn(
-                    f"Root-finding Eq. S39 for global inverse temperature failed, indicating potential overfitting. Defaulting to beta_L = 20."
-                )
-            return 20
+            MLE = brentq(self._eqs39, 0.01, 100, args=(self.ranks, self.A))
+            if MLE <= self.max_beta:
+                return MLE
+        except ValueError:
+            pass
+
+        if self.warn_beta:
+            print(
+                "Warning: Root-finding Eq S39 for beta_L indicates model overfitting because many large beta values are optimal. Capping beta_L at 20. If this is not desired, try increasing the model regularization."
+            )
+        return self.max_beta
 
     def _get_inverse_temperature_local(self):
         """
@@ -234,11 +259,19 @@ class SpringRank:
             result = min(results, key=lambda r: r.fun)
 
         beta_a = result.x
-        if beta_a > 20 and self.warn_beta:
+        if beta_a > self.max_beta and self.warn_beta:
             print(
                 "Warning: Minimizing Eq 12 for local inverse temperature yielded a large local optimum, indicating potential overfitting. Capping beta_a at 20."
             )
-        return min(beta_a, 20)
+        return min(beta_a, self.max_beta)
+
+    def _get_proportion_upward_edges(self):
+        """Computes the proportion of edges that point upward in the ranking. Used to determine if the adjacency matrix is perfectly hierarchical."""
+        sorted_indices = np.argsort(self.ranks)[::-1]
+        sorted_A = self.A[sorted_indices][:, sorted_indices]
+        if scipy.sparse.issparse(sorted_A):
+            sorted_A = sorted_A.toarray()
+        return np.tril(sorted_A, k=-1).sum() / sorted_A.sum()
 
     def get_beta(self):
         """
