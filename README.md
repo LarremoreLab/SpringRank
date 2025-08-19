@@ -76,12 +76,14 @@ print(model.predict([3,5]))
 If the `inverse_temp_type` parameter is set to `"global"`, the model will solve for the optimal value of the inverse temperature $\hat{\beta_L}$ using Eq. S39.
 
 If the `inverse_temp_type` parameter is set to `"local"`, the model will solve for the optimal value of the inverse temperature $\hat{\beta_a}$ by minimizing a quantity inversely related to $\sigma_a$ derived from Eq. 12:
-$$\hat{\beta_a} = \min_\beta \sum_{i, j}|A_{ij} - \bar{A}_{ij}P_{ij}(\beta).$$
+```math
+\hat{\beta_a} = \min_\beta \sum_{i, j}|A_{ij} - \bar{A}_{ij}P_{ij}(\beta)|.
+```
 
 If the input adjacency matrix is *perfectly hierarchical*, meaning there are no edges pointing from a lower-ranked node to a higher-ranked node. 
-In this case, there must be no reciprocated edges, so $A_ij = \bar{A}_{ij}$ for all $i, j$ such that $A_{ij} > 0$.
+In this case, there must be no reciprocated edges, so $A_{ij} > 0 \to A_{ji} = 0$ for all $i, j$.
 Because there is a perfect hierarchy, it must also be the case that for all $i, j$ where $A_{ij} > 0$, $s_i > s_j$.
-This means that, in both of the objective functions used to solve for $\beta$, $P_ij = 1$ when $A_{ij} > 0$ (or equivalently $s_i > s_j$) and $P_ij = 0$ when $A_{ij} = 0$ (or equivalently $s_i < s_j$). Thus the optimization yields $\beta = \infty$.
+This means that, in both of the objective functions used to solve for $\beta$, $P_{ij} = 1$ when $A_{ij} > 0$ (or equivalently $s_i > s_j$) and $P_{ij} = 0$ when $A_{ij} = 0$ (or equivalently $s_i < s_j$). Thus the optimization yields $\beta = \infty$.
 While this is mathematically correct, huge values of $\beta$ lead to numerical errors in calls to `model.get_rescaled_ranks` and `model.predict`, so we cap $\beta$ at a large value using the `max_beta` model parameter (default 20). 
 If this cap is reached because of perfectly hierarchical input, a warning will be issued if the `warn_beta` flag is set (default True).
 
