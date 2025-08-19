@@ -222,7 +222,7 @@ class SpringRank:
         Root-finding is performed using Brent's method (brentq) over the interval [0.01, 20]. If root-finding fails, beta_L defaults to 20.
         """
         try:
-            MLE = brentq(self._eqs39, 0.01, 100, args=(self.ranks, self.A))
+            MLE = brentq(self._eqs39, 0.01, 20, args=(self.ranks, self.A))
             if MLE <= self.max_beta:
                 return MLE
         except ValueError:
@@ -238,12 +238,12 @@ class SpringRank:
         """
         Calculates local inverse temperature parameter beta_a that minimizes the local accuracy sigma_a (Eq. 12) by minimizing an objective function that approximates the negative of sigma_a.
         This is the local inverse temperature parameter used for prediction and rank rescaling if the model is fitted with inverse_temp_type="local".
-        The minimization over a grid of beta values from 0 to 100 using local optimization. If the resulting local minimum is very large (> 20),
+        The minimization over a grid of beta values from 0 to 30 using local optimization. If the resulting local minimum is very large (> 20),
         the model is likely overfitting, and beta_a is capped at 20 with a warning.
         """
-        bounds = (0, 100)
+        bounds = (0, 30)
         with np.errstate(over="ignore"):
-            n_grid_points = 10
+            n_grid_points = 5
             beta_grid = np.linspace(
                 bounds[0], bounds[1], n_grid_points + 1
             )  # take the best of the 10 local optima
@@ -266,9 +266,13 @@ class SpringRank:
         return min(beta_a, self.max_beta)
 
     def _get_proportion_upward_edges(self):
-        """Computes the proportion of edges that point upward in the ranking. Used to determine if the adjacency matrix is perfectly hierarchical."""
+        """
+        Computes the proportion of edges that point upward in the ranking. 
+        Used to determine if the adjacency matrix is perfectly hierarchical.
+        """
         sorted_indices = np.argsort(self.ranks)[::-1]
         sorted_A = self.A[sorted_indices][:, sorted_indices]
+
         if scipy.sparse.issparse(sorted_A):
             sorted_A = sorted_A.toarray()
         return np.tril(sorted_A, k=-1).sum() / sorted_A.sum()
