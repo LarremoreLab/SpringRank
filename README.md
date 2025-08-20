@@ -4,7 +4,7 @@ This is a sparse `numpy` and `scipy` implementation of SpringRank.
 
 **Paper**: Cate De Bacco, Dan Larremore, and Cris Moore. Science Advances.
 
-**Code**: Dan Larremore, K. Hunter Wapman, Apara Venkateswaran.
+**Code**: Dan Larremore, K. Hunter Wapman, Apara Venkateswaran, Ben Aoki-Sherwood.
 
 # Installation
 
