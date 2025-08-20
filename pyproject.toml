@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SpringRank"
+version = "0.0.9"
+description = "SpringRank: A physical model for efficient ranking in networks"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Caterina De Bacco"},
+    {name = "Daniel Larremore", email = "daniel.larremore@colorado.edu"},
+    {name = "Cris Moore"},
+]
+maintainers = [
+    {name = "Daniel Larremore", email = "daniel.larremore@colorado.edu"},
+]
+requires-python = ">=3.6"
+keywords = ["rankings", "SpringRank"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering",
+]
+
+# read dependencies from requirements.txt
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/LarremoreLab/SpringRank"
+Repository = "https://github.com/LarremoreLab/SpringRank"
+Issues = "https://github.com/LarremoreLab/SpringRank/issues"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+exclude = ["tests*", "docs*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.md", "*.rst", "*.json", "*.yaml", "*.yml"]

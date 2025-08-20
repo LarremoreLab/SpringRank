@@ -246,7 +246,7 @@ class SpringRank:
             n_grid_points = 5
             beta_grid = np.linspace(
                 bounds[0], bounds[1], n_grid_points + 1
-            )  # take the best of the 10 local optima
+            )  # take the best of the local optima
             results = []
 
             for i in range(n_grid_points):
