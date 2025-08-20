@@ -171,9 +171,16 @@ class SpringRank:
             i, j = rows[idx], cols[idx]
             a_ij = A[i, j]
             a_ji = A[j, i]
-            x += (s[i] - s[j]) * (
-                a_ij - (a_ij + a_ji) / (1 + np.exp(-2 * beta * (s[i] - s[j])))
-            )
+            if a_ji==0: 
+                # This ensures that both (i,j) and (j,i) entries are counted
+                # in the sum, which is guaranteed for reciprocated edges
+                # but would otherwise be skipped when i->j is unreciprocated;
+                # that is, we force a double-count when i->j but j-/>i
+                x += 2*(s[i] - s[j]) * (a_ij - (a_ij + a_ji) / 
+                                     (1 + np.exp(-2 * beta * (s[i] - s[j]))))
+            else: 
+                x += (s[i] - s[j]) * (a_ij - (a_ij + a_ji) / 
+                                     (1 + np.exp(-2 * beta * (s[i] - s[j]))))
         return x
 
     @staticmethod
@@ -189,6 +196,7 @@ class SpringRank:
             i, j = rows[idx], cols[idx]
             a_ij = A[i, j]
             a_ji = A[j, i]
+            # okay to not double count because we sum over directed edges here
             a_ij_bar = a_ij + a_ji
             x += np.abs(a_ij - a_ij_bar / (1 + np.exp(-2 * beta * (s[i] - s[j]))))
         return x
